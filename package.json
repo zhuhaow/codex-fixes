@@ -16,6 +16,7 @@
     "dev": "npm run dev -w @codex-fixes/site",
     "build": "npm run build --workspaces --if-present",
     "build:site": "npm run build -w @codex-fixes/site",
+    "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "cli": "npm run dev -w @codex-fixes/cli --"
   },
