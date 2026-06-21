@@ -6,16 +6,16 @@
   "routes": [
     {
       "pattern": "codexfixes.com",
-      "custom_domain": true
+      "custom_domain": true,
     },
     {
       "pattern": "www.codexfixes.com",
-      "custom_domain": true
-    }
+      "custom_domain": true,
+    },
   ],
   "assets": {
     "directory": "./apps/site/dist",
     "html_handling": "auto-trailing-slash",
-    "not_found_handling": "404-page"
-  }
+    "not_found_handling": "404-page",
+  },
 }

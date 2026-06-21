@@ -16,12 +16,17 @@
     "dev": "npm run dev -w @codex-fixes/site",
     "build": "npm run build --workspaces --if-present",
     "build:site": "npm run build -w @codex-fixes/site",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "cli": "npm run dev -w @codex-fixes/cli --"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
+    "prettier": "^3.8.4",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.8.0",
     "typescript": "^5.7.0",
     "wrangler": "^4.103.0"
   }
