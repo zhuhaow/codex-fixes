@@ -15,11 +15,13 @@
   "scripts": {
     "dev": "npm run dev -w @codex-fixes/site",
     "build": "npm run build --workspaces --if-present",
+    "build:site": "npm run build -w @codex-fixes/site",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "cli": "npm run dev -w @codex-fixes/cli --"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "wrangler": "^4.103.0"
   }
 }
