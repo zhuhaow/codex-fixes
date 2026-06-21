@@ -1,0 +1,45 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Codex Fixes">
+  <section>
+    <div class="eyebrow">Open source Codex diagnostics</div>
+    <h1>Find active Codex problems before they waste your machine.</h1>
+    <p>
+      A static issue catalog and local CLI for community-maintained Codex
+      workarounds. The first release will focus on detection, explanation,
+      backups, and reversible fixes.
+    </p>
+    <div class="command" aria-label="Doctor command">
+      <code>npx codex-fixes doctor</code>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Project Surfaces</h2>
+    <div class="grid">
+      <article class="card">
+        <h3>Issue Catalog</h3>
+        <p>
+          Static pages for current bugs, affected versions, risk labels, and
+          upstream references.
+        </p>
+      </article>
+      <article class="card">
+        <h3>Local CLI</h3>
+        <p>
+          A Node-based tool for diagnostics, fix previews, backups, future
+          application, and rollback.
+        </p>
+      </article>
+      <article class="card">
+        <h3>Shared Registry</h3>
+        <p>
+          TypeScript metadata shared by the website and CLI so documentation
+          and commands stay aligned.
+        </p>
+      </article>
+    </div>
+  </section>
+</BaseLayout>

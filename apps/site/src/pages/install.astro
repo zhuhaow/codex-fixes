@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Install - Codex Fixes"
+  description="Install and run the Codex Fixes CLI."
+>
+  <section>
+    <div class="eyebrow">CLI</div>
+    <h1>Start with a local diagnosis.</h1>
+    <p>
+      The initial CLI scaffold only prints command placeholders. Future fixes
+      should default to read-only diagnostics before changing local Codex state.
+    </p>
+    <div class="command" aria-label="CLI doctor command">
+      <code>npx codex-fixes doctor</code>
+    </div>
+  </section>
+</BaseLayout>
