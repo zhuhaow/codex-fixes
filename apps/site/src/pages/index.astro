@@ -1,45 +1,278 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const articleDateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+
+const links = [
+  { label: "Documentation", href: "#" },
+  { label: "GitHub", href: "https://github.com/zhuhaow/codex-fixes" },
+  { label: "RSS", href: "/feed.xml" },
+];
+
+const articles = [
+  {
+    id: "codex-fixes-message-suggestions",
+    date: "2023-04-06T00:00Z",
+    image: "/images/commit/commit-suggestions.png",
+    title: "codex-fixes message suggestions",
+    paragraphs: [
+      "In the latest release, I've added support for codex-fixes message and description suggestions via an integration with OpenAI. codex-fixes looks at all of your changes, and feeds that into the machine with a bit of prompt-tuning to get back a codex-fixes message that does a surprisingly good job at describing the intent of your changes.",
+      "It's also been a pretty helpful way to remind myself what the hell I was working on at the end of the day yesterday when I get back to my computer and realize I didn't codex-fixes any of my work.",
+    ],
+    improvements: [
+      "Added codex-fixes message and description suggestions powered by OpenAI",
+      "Fixed race condition that could sometimes leave you in a broken rebase state",
+      "Improved active project detection to try and ignore file changes triggered by the system instead of the user",
+      "Fixed bug that sometimes reported the wrong number of changed files",
+    ],
+  },
+  {
+    id: "project-configuration-files",
+    date: "2023-03-17T00:00Z",
+    image: "/images/commit/configuration-files.png",
+    title: "Project configuration files",
+    paragraphs: [
+      "I've added support for creating per-project `.codex-fixesrc` files that override your global settings for that particular project. Went with YAML for these because personally I'm sick of quoting keys in JSON all the time, or accidentally leaving in a trailing comma.",
+    ],
+    improvements: [
+      "Added per-project `.codex-fixesrc` configuration files",
+      "Improved performance when working with projects with large binary files",
+      "Fixed a bug that could cause codex-fixes to crash when auto-codex-fixesing after deleting a recently active branch",
+    ],
+  },
+  {
+    id: "dark-mode-support",
+    date: "2023-03-06T00:00Z",
+    image: "/images/commit/dark-mode.png",
+    title: "Dark mode support",
+    paragraphs: [
+      'I released this thing last week hoping a couple of people would say "awesome job" and make me feel good about what I\'d built but instead I just got a ton of people shaming me on X for being such a horrible person for only shipping a light UI.',
+    ],
+    improvements: [
+      "Added dark mode support",
+      "Improved input field responsiveness when writing a codex-fixes message in a project with a large number of changed files",
+      "Made keyboard shortcut for opening the codex-fixes window customizable",
+      "Deleted my X account",
+    ],
+  },
+  {
+    id: "codex-fixes-v010",
+    date: "2023-03-03T00:00Z",
+    image: "/images/commit/first-release.png",
+    title: "codex-fixes v0.1.0",
+    paragraphs: [
+      "codex-fixes is a command palette-style Git client you can pull up from anywhere with a keyboard shortcut that makes it really easy to codex-fixes your work. It uses the \"last modified\" timestamp of the files in all of your projects to automatically know which project you're in the middle of working on, so any time you pull up the UI it's already got the right project selected — you just have to type your codex-fixes message, hit Cmd + Enter and your changes are captured.",
+      "I'd be lying if I really thought this was that useful but I was looking for an excuse to learn macOS development and here we are. It's open source at least so maybe you can find something interesting in the code even if the app itself is a total waste of hard drive space.",
+    ],
+    improvements: [],
+  },
+];
 ---
 
-<BaseLayout title="Codex Fixes">
-  <section>
-    <div class="eyebrow">Open source Codex diagnostics</div>
-    <h1>Find active Codex problems before they waste your machine.</h1>
-    <p>
-      A static issue catalog and local CLI for community-maintained Codex
-      workarounds. The first release will focus on detection, explanation,
-      backups, and reversible fixes.
-    </p>
-    <div class="command" aria-label="Doctor command">
-      <code>npx codex-fixes doctor</code>
-    </div>
-  </section>
+<BaseLayout
+  title="Codex Fixes"
+  description="Community-maintained diagnostics and workarounds for Codex issues."
+>
+  <div
+    class="min-h-screen bg-white text-gray-950 dark:bg-gray-950 dark:text-white"
+  >
+    <aside
+      class="relative overflow-hidden bg-gray-950 px-6 text-white lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 lg:flex lg:w-1/2 lg:items-center lg:px-0"
+    >
+      <div
+        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(56,189,248,0.28),rgba(3,7,18,0)_42%)]"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_85%,rgba(59,130,246,0.16),rgba(3,7,18,0)_36%)]"
+      >
+      </div>
+      <div
+        class="pointer-events-none absolute inset-0 [background-image:radial-gradient(circle_at_center,white_1px,transparent_1px)] [background-size:34px_34px] opacity-20"
+      >
+      </div>
+      <div
+        class="relative mx-auto flex w-full max-w-lg flex-col py-20 sm:py-32 lg:w-96 lg:py-0"
+      >
+        <div>
+          <a
+            href="/"
+            aria-label="codex-fixes home"
+            class="inline-flex items-center"
+          >
+            <span class="text-2xl font-bold tracking-tight text-white"
+              >codex-fixes</span
+            >
+          </a>
+        </div>
 
-  <section class="section">
-    <h2>Project Surfaces</h2>
-    <div class="grid">
-      <article class="card">
-        <h3>Issue Catalog</h3>
-        <p>
-          Static pages for current bugs, affected versions, risk labels, and
-          upstream references.
+        <h1 class="mt-14 text-4xl/tight font-light text-white">
+          Open-source Git client <span class="text-sky-300"
+            >for macOS minimalists</span
+          >
+        </h1>
+        <p class="mt-4 text-sm/6 text-gray-300">
+          codex-fixes is a lightweight Git client you can open from anywhere any
+          time you're ready to codex-fixes your work with a single keyboard
+          shortcut. It's fast, beautiful, and completely unnecessary.
         </p>
-      </article>
-      <article class="card">
-        <h3>Local CLI</h3>
-        <p>
-          A Node-based tool for diagnostics, fix previews, backups, future
-          application, and rollback.
+
+        <form class="relative isolate mt-8 flex items-center pr-1">
+          <label for="email-address" class="sr-only">Email address</label>
+          <input
+            required
+            type="email"
+            autocomplete="email"
+            name="email"
+            id="email-address"
+            placeholder="Email address"
+            class="peer w-0 flex-auto bg-transparent px-4 py-2.5 text-base text-white placeholder:text-gray-500 focus:outline-none sm:text-[0.8125rem]/6"
+          />
+          <button
+            type="submit"
+            class="group relative isolate flex-none rounded-md py-1.5 pr-[calc(9/16*1rem)] pl-2.5 text-[0.8125rem]/6 font-semibold text-white"
+          >
+            <span
+              class="absolute inset-0 rounded-md bg-linear-to-b from-white/80 to-white opacity-10 transition-opacity group-hover:opacity-15"
+            ></span>
+            <span
+              class="absolute inset-0 rounded-md opacity-7 shadow-[inset_0_1px_1px_white] transition-opacity group-hover:opacity-10"
+            ></span>
+            Get updates <span aria-hidden="true">→</span>
+          </button>
+          <div
+            class="absolute inset-0 -z-10 rounded-lg transition peer-focus:ring-4 peer-focus:ring-sky-300/15"
+          >
+          </div>
+          <div
+            class="absolute inset-0 -z-10 rounded-lg bg-white/[0.025] ring-1 ring-white/15 transition peer-focus:ring-sky-300"
+          >
+          </div>
+        </form>
+
+        <div
+          class="mt-8 flex flex-wrap justify-center gap-x-1 gap-y-3 sm:gap-x-2 lg:justify-start"
+        >
+          {
+            links.map((link) => (
+              <a
+                href={link.href}
+                class="group relative isolate flex items-center gap-x-3 rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-white/30 transition-colors hover:text-sky-300"
+              >
+                <span class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100" />
+                <span class="self-baseline text-white">{link.label}</span>
+              </a>
+            ))
+          }
+        </div>
+
+        <p
+          class="hidden items-baseline gap-x-2 pt-20 text-[0.8125rem]/6 text-gray-500 lg:flex"
+        >
+          Brought to you by <a href="#" class="font-medium text-white"
+            >Joe Davola</a
+          >
         </p>
-      </article>
-      <article class="card">
-        <h3>Shared Registry</h3>
-        <p>
-          TypeScript metadata shared by the website and CLI so documentation and
-          commands stay aligned.
-        </p>
-      </article>
+      </div>
+    </aside>
+
+    <div class="relative lg:ml-[50%]">
+      <div class="space-y-20 py-20 sm:space-y-32 sm:py-32">
+        {
+          articles.map((article) => (
+            <article id={article.id} class="scroll-mt-16">
+              <header class="relative mb-10 xl:mb-0">
+                <div class="pointer-events-none absolute top-0 left-[max(-0.5rem,calc(50%-18.625rem))] z-10 flex h-4 items-center justify-end gap-x-2 lg:right-full lg:left-auto lg:mr-8 lg:min-w-48 xl:h-8">
+                  <a
+                    href={`#${article.id}`}
+                    class="pointer-events-auto hidden xl:block"
+                  >
+                    <time
+                      datetime={new Date(article.date).toISOString()}
+                      class="text-[0.6875rem]/4 font-medium text-gray-400"
+                    >
+                      {articleDateFormatter.format(new Date(article.date))}
+                    </time>
+                  </a>
+                  <div class="h-px w-3.5 bg-gray-300" />
+                </div>
+                <div class="mx-auto max-w-7xl px-6 lg:flex lg:px-8">
+                  <div class="lg:flex lg:w-full lg:justify-end">
+                    <div class="mx-auto max-w-lg lg:mx-0 lg:w-0 lg:max-w-xl lg:flex-auto">
+                      <a href={`#${article.id}`} class="inline-flex xl:hidden">
+                        <time
+                          datetime={new Date(article.date).toISOString()}
+                          class="text-[0.6875rem]/4 font-medium text-gray-500"
+                        >
+                          {articleDateFormatter.format(new Date(article.date))}
+                        </time>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              <div class="mx-auto max-w-7xl px-6 lg:flex lg:px-8">
+                <div class="lg:flex lg:w-full lg:justify-end">
+                  <div class="mx-auto max-w-lg text-sm/6 text-gray-600 lg:mx-0 lg:w-0 lg:max-w-xl lg:flex-auto">
+                    <div class="relative overflow-hidden rounded-xl bg-gray-50">
+                      <img
+                        src={article.image}
+                        alt=""
+                        class="w-full"
+                        loading="lazy"
+                      />
+                      <div class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset" />
+                    </div>
+
+                    <h2 class="mt-8 text-xl/8 font-semibold text-gray-900">
+                      <a href={`#${article.id}`}>{article.title}</a>
+                    </h2>
+
+                    {article.paragraphs.map((paragraph) => (
+                      <p class="mt-6">{paragraph}</p>
+                    ))}
+
+                    {article.improvements.length > 0 && (
+                      <>
+                        <h3 class="mt-8 flex items-center gap-3 text-base/6 font-semibold text-gray-900">
+                          <svg
+                            viewBox="0 0 16 16"
+                            aria-hidden="true"
+                            class="size-4"
+                          >
+                            <path
+                              fill="#38BDF8"
+                              d="M5.338 9.805c.11.418.439.747.857.857C7.282 10.948 8 11.44 8 12s-.718 1.052-1.805 1.338c-.418.11-.747.439-.857.857C5.052 15.281 4.56 16 4 16s-1.052-.718-1.338-1.805a1.205 1.205 0 0 0-.856-.857C.718 13.052 0 12.56 0 12s.718-1.052 1.806-1.338c.417-.11.746-.439.856-.857C2.948 8.718 3.441 8 4 8c.56 0 1.052.718 1.338 1.805Z"
+                            />
+                            <path
+                              fill="#7DD3FC"
+                              d="M12.717 2.432c.1.42.43.75.85.852C15.026 3.633 16 4.27 16 5s-.975 1.367-2.432 1.716c-.42.101-.75.432-.851.852C12.367 9.025 11.729 10 11 10c-.729 0-1.367-.975-1.716-2.432-.101-.42-.431-.75-.851-.852C6.975 6.367 6 5.73 6 5c0-.73.975-1.367 2.433-1.717.42-.1.75-.43.85-.85C9.634.974 10.272 0 11 0c.73 0 1.367.975 1.717 2.432Z"
+                            />
+                          </svg>
+                          Improvements
+                        </h3>
+                        <ul class="mt-6 list-disc space-y-2 pl-5">
+                          {article.improvements.map((improvement) => (
+                            <li class="pl-2 marker:text-gray-400">
+                              {improvement}
+                            </li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
     </div>
-  </section>
+  </div>
 </BaseLayout>
