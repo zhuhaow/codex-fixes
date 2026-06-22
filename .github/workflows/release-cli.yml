@@ -1,0 +1,120 @@
+name: Release CLI
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  publish-npm-package:
+    name: Publish npm package
+    runs-on: ubuntu-latest
+    environment: npm-release
+    timeout-minutes: 20
+    concurrency:
+      group: release-cli-${{ github.ref }}
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Verify release npm version
+        run: |
+          set -euo pipefail
+
+          NPM_VERSION="$(npm --version)"
+          MINIMUM_NPM_VERSION="11.5.1"
+
+          if [ "$(printf '%s\n' "${MINIMUM_NPM_VERSION}" "${NPM_VERSION}" | sort -V | head -n1)" != "${MINIMUM_NPM_VERSION}" ]; then
+            echo "npm ${MINIMUM_NPM_VERSION} or newer is required for trusted publishing. Found npm ${NPM_VERSION}."
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate release tag
+        run: |
+          set -euo pipefail
+
+          PACKAGE_VERSION="$(node -p "require('./packages/cli/package.json').version")"
+          EXPECTED_TAG="v${PACKAGE_VERSION}"
+
+          if [ "${GITHUB_REF_NAME}" != "${EXPECTED_TAG}" ]; then
+            echo "Release tag ${GITHUB_REF_NAME} does not match codex-fixes@${PACKAGE_VERSION} (${EXPECTED_TAG})."
+            exit 1
+          fi
+
+      - name: Format
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Audit dependencies
+        run: npm audit -w codex-fixes --audit-level=high
+
+      - name: Verify registry signatures
+        run: npm audit signatures
+
+      - name: Pack CLI
+        run: |
+          set -euo pipefail
+
+          mkdir -p release-artifacts
+          npm pack -w codex-fixes --pack-destination release-artifacts --json > release-artifacts/npm-pack.json
+          node -e "const fs = require('node:fs'); const data = JSON.parse(fs.readFileSync('release-artifacts/npm-pack.json', 'utf8')); console.log(data[0].filename)" > release-artifacts/tarball-name.txt
+
+          TARBALL="release-artifacts/$(cat release-artifacts/tarball-name.txt)"
+          sha256sum "${TARBALL}" > "${TARBALL}.sha256"
+
+      - name: Generate package attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: "release-artifacts/*.tgz"
+
+      - name: Generate SBOM
+        run: npm sbom -w codex-fixes --sbom-format=cyclonedx > release-artifacts/codex-fixes-sbom.cdx.json
+
+      - name: Generate SBOM attestation
+        uses: actions/attest@v4
+        with:
+          subject-path: "release-artifacts/*.tgz"
+          sbom-path: "release-artifacts/codex-fixes-sbom.cdx.json"
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-fixes-npm-package
+          path: |
+            release-artifacts/*.tgz
+            release-artifacts/*.sha256
+            release-artifacts/npm-pack.json
+            release-artifacts/codex-fixes-sbom.cdx.json
+          if-no-files-found: error
+
+      - name: Publish package to npm
+        run: |
+          set -euo pipefail
+          TARBALL="release-artifacts/$(cat release-artifacts/tarball-name.txt)"
+          npm publish "${TARBALL}" --provenance --access public

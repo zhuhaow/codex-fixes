@@ -39,6 +39,11 @@ Build only the website:
 npm run build:site
 ```
 
+## Publishing
+
+The CLI package is published from GitHub Actions with npm trusted publishing.
+Release builds are verified in CI and published from protected version tags.
+
 ## Workspace Layout
 
 ```text
