@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Source code
+    url: https://github.com/zhuhaow/codex-fixes
+    about: Browse the project source and current registry entries.

@@ -1,0 +1,63 @@
+name: Fix proposal
+description: Suggest a workaround for an existing or proposed Codex bug.
+title: "[Fix proposal]: "
+labels: ["fix-proposal"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fixes should be easy to audit, idempotent, dependency-free TypeScript scripts that run with Node.
+
+        Do not propose fixes that call external websites or require private user data.
+
+  - type: input
+    id: related-bug
+    attributes:
+      label: Related bug or registry ID
+      description: Link an issue or name the registry ID if one exists.
+      placeholder: "sqlite-feedback-logs or https://github.com/..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix-source
+    attributes:
+      label: Fix source
+      description: Link where this workaround came from.
+      placeholder: "GitHub comment, docs page, blog post, or other public source"
+    validations:
+      required: true
+
+  - type: textarea
+    id: fix-summary
+    attributes:
+      label: What does the fix change?
+      description: Keep this concrete and short.
+      placeholder: "Creates a SQLite trigger that ignores future rows written to the logs table."
+    validations:
+      required: true
+
+  - type: textarea
+    id: supported-targets
+    attributes:
+      label: Supported targets
+      description: Which Codex surfaces and platforms should this apply to?
+      placeholder: "CLI on Linux x64 and Windows x64; desktop Windows x64; unknown on macOS."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety checklist
+      options:
+        - label: The fix can be run multiple times safely.
+          required: true
+        - label: The fix uses TypeScript and Node.
+          required: true
+        - label: The fix does not require third-party dependencies.
+          required: true
+        - label: The fix does not call external websites or endpoints.
+          required: true
+        - label: Reinstalling or updating Codex should reasonably undo or replace the change.
+          required: true

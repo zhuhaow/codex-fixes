@@ -1,0 +1,49 @@
+name: Upstream fixed
+description: Report that Codex may have fixed a tracked bug upstream.
+title: "[Upstream fixed]: "
+labels: ["upstream-fixed"]
+body:
+  - type: input
+    id: registry-id
+    attributes:
+      label: Registry issue ID
+      placeholder: "sqlite-feedback-logs"
+    validations:
+      required: true
+
+  - type: input
+    id: codex-version
+    attributes:
+      label: Codex version tested
+      description: Include CLI, desktop app, or extension version if available.
+      placeholder: "Codex CLI 0.0.0, desktop 0.0.0, unknown"
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform tested
+      placeholder: "macOS Apple silicon, Windows x64, Linux x64"
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Explain how you verified that the bug appears fixed.
+      placeholder: "I reproduced the old behavior on version X, updated to version Y, and the database no longer grows..."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: suggested-status
+    attributes:
+      label: Suggested registry status
+      options:
+        - fixed
+        - deprecated
+        - not sure
+    validations:
+      required: true

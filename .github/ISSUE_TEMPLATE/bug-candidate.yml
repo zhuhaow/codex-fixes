@@ -1,0 +1,69 @@
+name: Bug candidate
+description: Report a Codex bug that may need a community fix.
+title: "[Bug candidate]: "
+labels: ["bug-candidate"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping keep Codex Fixes useful.
+
+        Please link public evidence where possible. Do not paste secrets, private logs, API keys, database contents, or anything you would not want in a public GitHub issue.
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Codex surface
+      description: Where does this bug happen?
+      options:
+        - CLI
+        - Desktop app
+        - Extension
+        - Unknown
+    validations:
+      required: true
+
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      description: Include OS and architecture if you know them.
+      placeholder: "macOS Apple silicon, Windows x64, Linux ARM64, unknown"
+    validations:
+      required: true
+
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happens?
+      description: Describe the bug in plain language.
+      placeholder: "Codex repeatedly writes to logs_2.sqlite even when idle..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Why does this matter?
+      description: Explain the user impact.
+      placeholder: "High CPU usage, large disk writes, disk space growth, broken workflow..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: public-reports
+    attributes:
+      label: Public reports
+      description: Link upstream Codex issues, comments, discussions, or other public reports.
+      placeholder: "https://github.com/openai/codex/issues/..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Known workaround
+      description: If you know a workaround, describe it or link to it.
+      placeholder: "No known workaround yet."
+    validations:
+      required: false
