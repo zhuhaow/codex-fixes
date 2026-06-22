@@ -3,3 +3,5 @@ dist/
 .astro/
 coverage/
 package-lock.json
+research/
+scripts/research/

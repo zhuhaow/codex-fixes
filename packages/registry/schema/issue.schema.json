@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Codex Fixes Issue",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "title",
+    "status",
+    "severity",
+    "summary",
+    "sources",
+    "targets"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": ["active", "fixed", "deprecated"]
+    },
+    "severity": {
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issues", "fixes"],
+      "properties": {
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "fixes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      }
+    },
+    "targets": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cli": {
+          "$ref": "#/$defs/targetMap"
+        },
+        "desktop": {
+          "$ref": "#/$defs/targetMap"
+        }
+      },
+      "minProperties": 1
+    }
+  },
+  "$defs": {
+    "targetMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "darwin-arm64": {
+          "$ref": "#/$defs/target"
+        },
+        "darwin-x64": {
+          "$ref": "#/$defs/target"
+        },
+        "linux-arm64": {
+          "$ref": "#/$defs/target"
+        },
+        "linux-x64": {
+          "$ref": "#/$defs/target"
+        },
+        "win32-arm64": {
+          "$ref": "#/$defs/target"
+        },
+        "win32-x64": {
+          "$ref": "#/$defs/target"
+        }
+      },
+      "minProperties": 1
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applies"],
+      "properties": {
+        "applies": {
+          "enum": ["Yes", "No", "Unknown"]
+        },
+        "script": {
+          "type": "string",
+          "pattern": "^scripts/[A-Za-z0-9._/-]+\\.ts$"
+        }
+      }
+    }
+  }
+}

@@ -10,3 +10,5 @@ npm-debug.log*
 .wrangler/
 .dev.vars
 .dev.vars.*
+research/
+scripts/research/
