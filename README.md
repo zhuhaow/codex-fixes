@@ -2,10 +2,11 @@
 
 Community-maintained diagnostics and workarounds for Codex issues.
 
-This repository is a TypeScript-only monorepo with two main parts:
+This repository is a TypeScript-only monorepo with three main parts:
 
-- `apps/site`: Astro website for issue pages, fix documentation, and install guidance.
+- `apps/site`: Astro website for active issues, fix documentation, and contribution entry points.
 - `packages/cli`: Node CLI for local diagnostics and future fix application.
+- `registry`: Shared issue metadata and fix scripts.
 
 ## Requirements
 
@@ -45,8 +46,7 @@ apps/
   site/        Astro website
 packages/
   cli/         Node CLI
-  registry/    Shared issue and fix metadata types
+registry/
+  issues/      Issue manifests and fix scripts
+  schema/      Registry JSON schema
 ```
-
-The fix implementation model is intentionally not built yet. The next design
-step is to decide the registry schema, safety model, and CLI command behavior.

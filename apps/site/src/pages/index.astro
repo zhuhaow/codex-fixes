@@ -65,14 +65,7 @@ const targetLabels: Record<TargetId, string> = {
 };
 
 const sourceUrl = "https://github.com/zhuhaow/codex-fixes";
-
-const links = [
-  {
-    label: "Report bug",
-    href: "https://github.com/zhuhaow/codex-fixes/issues",
-  },
-  { label: "Install", href: "/install/" },
-];
+const contributeUrl = "https://github.com/zhuhaow/codex-fixes/issues/new/choose";
 
 const issueStatuses = new Set<IssueStatus>(["active", "fixed", "deprecated"]);
 const issueSeverities = new Set<IssueSeverity>([
@@ -264,21 +257,25 @@ const activeFixes = activeIssues.map((issue) => ({
           </div>
         </div>
 
-        <div
-          class="mt-8 flex flex-wrap justify-center gap-x-1 gap-y-3 sm:gap-x-2 lg:justify-start"
+        <a
+          href={contributeUrl}
+          class="group mt-8 block rounded-lg bg-white/8 p-4 text-left ring-1 ring-white/10 transition hover:bg-white/12 hover:ring-sky-300/35"
         >
-          {
-            links.map((link) => (
-              <a
-                href={link.href}
-                class="group relative isolate flex items-center gap-x-3 rounded-lg px-2 py-0.5 text-[0.8125rem]/6 font-medium text-white/30 transition-colors hover:text-sky-300"
-              >
-                <span class="absolute inset-0 -z-10 scale-75 rounded-lg bg-white/5 opacity-0 transition group-hover:scale-100 group-hover:opacity-100" />
-                <span class="self-baseline text-white">{link.label}</span>
-              </a>
-            ))
-          }
-        </div>
+          <span class="flex items-center justify-between gap-4">
+            <span class="text-sm/6 font-semibold text-white"
+              >Help make Codex less annoying</span
+            >
+            <span
+              aria-hidden="true"
+              class="grid size-7 place-items-center rounded-full bg-sky-300 text-sm text-gray-950 transition group-hover:translate-x-0.5"
+              >→</span
+            >
+          </span>
+          <span class="mt-2 block text-xs/5 text-gray-400">
+            Report real bugs, share workarounds, verify platforms, or tell us
+            when OpenAI finally fixed one.
+          </span>
+        </a>
       </div>
     </aside>
 
