@@ -1,11 +1,25 @@
 # Codex Fixes
 
-Community-maintained diagnostics and workarounds for Codex issues.
+Community-maintained fixes for Codex bugs.
 
-This repository is a TypeScript-only monorepo with three main parts:
+<https://codexfixes.com>
+
+Run the latest fixes with:
+
+```bash
+npx codex-fixes@latest
+```
+
+Help make Codex less annoying: report real bugs, share workarounds, verify
+platforms, or tell us when OpenAI finally fixed one:
+<https://github.com/zhuhaow/codex-fixes/issues>
+
+## Development
+
+This repository is a TypeScript-only monorepo:
 
 - `apps/site`: Astro website for active issues, fix documentation, and contribution entry points.
-- `packages/cli`: Node CLI for local diagnostics and future fix application.
+- `packages/cli`: Node CLI for local diagnostics and fix application.
 - `registry`: Shared issue metadata and fix scripts.
 
 ## Requirements
