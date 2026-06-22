@@ -36,6 +36,11 @@ interface IssueManifest {
   >;
 }
 
+interface FixTarget {
+  label: string;
+  scriptUrl: string;
+}
+
 const severityRank: Record<IssueSeverity, number> = {
   critical: 0,
   high: 1,
@@ -65,6 +70,7 @@ const targetLabels: Record<TargetId, string> = {
 };
 
 const sourceUrl = "https://github.com/zhuhaow/codex-fixes";
+const sourceBranch = "main";
 const contributeUrl =
   "https://github.com/zhuhaow/codex-fixes/issues/new/choose";
 
@@ -152,6 +158,27 @@ function collectTargets(
   return labels;
 }
 
+function collectFixTargets(issue: IssueManifest): FixTarget[] {
+  const targets: FixTarget[] = [];
+
+  for (const [surface, targetMap] of Object.entries(issue.targets) as Array<
+    [CodexSurface, Partial<Record<TargetId, IssueTarget>>]
+  >) {
+    for (const [targetId, target] of Object.entries(targetMap) as Array<
+      [TargetId, IssueTarget]
+    >) {
+      if (target.applies === "Yes" && target.script) {
+        targets.push({
+          label: `${surfaceLabels[surface]} · ${targetLabels[targetId]}`,
+          scriptUrl: `${sourceUrl}/blob/${sourceBranch}/registry/issues/${issue.id}/${target.script}`,
+        });
+      }
+    }
+  }
+
+  return targets;
+}
+
 function sourceLabel(url: string): string {
   const issueMatch = /\/issues\/(?<issueNumber>\d+)/.exec(url);
   const commentMatch = /#issuecomment-(?<commentId>\d+)/.exec(url);
@@ -170,10 +197,7 @@ function sourceLabel(url: string): string {
 const activeFixes = activeIssues.map((issue) => ({
   ...issue,
   knownAffected: collectTargets(issue, (target) => target.applies === "Yes"),
-  fixAvailable: collectTargets(
-    issue,
-    (target) => target.applies === "Yes" && Boolean(target.script),
-  ),
+  fixTargets: collectFixTargets(issue),
   needsVerification: collectTargets(
     issue,
     (target) => target.applies === "Unknown",
@@ -375,10 +399,13 @@ const activeFixes = activeIssues.map((issue) => ({
                       Fix available for
                     </h4>
                     <div class="mt-2 flex flex-wrap gap-2">
-                      {issue.fixAvailable.map((label) => (
-                        <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-100">
-                          {label}
-                        </span>
+                      {issue.fixTargets.map((target) => (
+                        <a
+                          href={target.scriptUrl}
+                          class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-100 transition hover:bg-emerald-100 hover:text-emerald-800 hover:ring-emerald-200"
+                        >
+                          {target.label}
+                        </a>
                       ))}
                     </div>
                   </div>
