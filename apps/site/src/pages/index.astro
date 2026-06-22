@@ -229,6 +229,21 @@ const activeFixes = activeIssues.map((issue) => ({
         </p>
 
         <div
+          class="mt-9 max-w-md rounded-lg bg-gradient-to-r from-sky-400/80 via-white/20 to-cyan-300/70 p-px shadow-[0_22px_80px_-32px_rgba(56,189,248,0.95)]"
+        >
+          <div class="rounded-lg bg-gray-950/95 p-4 ring-1 ring-white/10">
+            <div class="flex items-center justify-between gap-4">
+              <p class="text-xs/5 font-semibold tracking-[0.16em] text-sky-200 uppercase">
+                Run the fixes
+              </p>
+            </div>
+            <code class="mt-3 block font-mono text-lg/7 text-white">
+              <span class="text-sky-300">$</span> npx codex-fixes
+            </code>
+          </div>
+        </div>
+
+        <div
           class="mt-8 flex flex-wrap justify-center gap-x-1 gap-y-3 sm:gap-x-2 lg:justify-start"
         >
           {
