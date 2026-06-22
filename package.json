@@ -2,6 +2,7 @@
   "name": "codex-fixes-monorepo",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "packageManager": "npm@10.9.0",
   "engines": {
