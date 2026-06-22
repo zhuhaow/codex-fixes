@@ -217,31 +217,16 @@ const activeFixes = activeIssues.map((issue) => ({
           >
         </a>
 
-        <p
-          class="mt-14 w-fit rounded-full bg-white/8 px-3 py-1 text-xs/5 font-medium text-sky-200 ring-1 ring-white/10"
-        >
-          {activeFixes.length} active fix{activeFixes.length === 1 ? "" : "es"} tracked
-        </p>
-
-        <h1 class="mt-5 text-4xl/tight font-light text-white">
-          Community fixes for <span class="text-sky-300">real Codex bugs</span>
+        <h1 class="mt-14 text-4xl/tight font-light text-white">
+          Community-maintained fixes for <span class="text-sky-300"
+            >Codex bugs</span
+          >
         </h1>
         <p class="mt-4 text-sm/6 text-gray-300">
-          Codex Fixes tracks current, user-impacting Codex issues and keeps the
-          workarounds in one open registry so people do not have to dig through
-          long GitHub threads just to protect their machine.
+          When Codex bugs burn CPU, hammer your drive, or fill your disk, Codex
+          Fixes gives you community workarounds now, while the official fix
+          takes its sweet time.
         </p>
-
-        <div class="mt-8 grid gap-3 text-sm/6 text-gray-300">
-          <p class="rounded-lg bg-white/[0.035] p-4 ring-1 ring-white/10">
-            Fixes are small TypeScript scripts, designed to be idempotent,
-            dependency-free, and easy to audit before running.
-          </p>
-          <p class="rounded-lg bg-white/[0.035] p-4 ring-1 ring-white/10">
-            Each entry links back to public reports and the source of the
-            workaround, so contributors can verify what changed.
-          </p>
-        </div>
 
         <div
           class="mt-8 flex flex-wrap justify-center gap-x-1 gap-y-3 sm:gap-x-2 lg:justify-start"
