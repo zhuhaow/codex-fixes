@@ -19,6 +19,19 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <script
+      is:inline
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-0YW51C1PPY"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args) {
+        window.dataLayer.push(args);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-0YW51C1PPY");
+    </script>
   </head>
   <body>
     <main>
