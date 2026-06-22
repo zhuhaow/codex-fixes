@@ -10,13 +10,11 @@ https://github.com/zhuhaow/codex-fixes/issues
 
 ## Usage
 
-Run the latest published CLI:
+Run this command after every Codex update:
 
 ```bash
 npx codex-fixes@latest
 ```
-
-Run every time Codex updates.
 
 Preview what would run without changing anything:
 

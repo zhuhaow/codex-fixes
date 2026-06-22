@@ -4,13 +4,11 @@ Community-maintained fixes for Codex bugs.
 
 <https://codexfixes.com>
 
-Run the latest fixes with:
+Run this command after every Codex update:
 
 ```bash
 npx codex-fixes@latest
 ```
-
-Run every time Codex updates.
 
 Help make Codex less annoying: report real bugs, share workarounds, verify
 platforms, or tell us when OpenAI finally fixed one:
