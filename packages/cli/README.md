@@ -16,6 +16,8 @@ Run the latest published CLI:
 npx codex-fixes@latest
 ```
 
+Run every time Codex updates.
+
 Preview what would run without changing anything:
 
 ```bash

@@ -10,6 +10,8 @@ Run the latest fixes with:
 npx codex-fixes@latest
 ```
 
+Run every time Codex updates.
+
 Help make Codex less annoying: report real bugs, share workarounds, verify
 platforms, or tell us when OpenAI finally fixed one:
 <https://github.com/zhuhaow/codex-fixes/issues>
