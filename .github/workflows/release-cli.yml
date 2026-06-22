@@ -116,5 +116,5 @@ jobs:
       - name: Publish package to npm
         run: |
           set -euo pipefail
-          TARBALL="release-artifacts/$(cat release-artifacts/tarball-name.txt)"
+          TARBALL="./release-artifacts/$(cat release-artifacts/tarball-name.txt)"
           npm publish "${TARBALL}" --provenance --access public
