@@ -282,7 +282,9 @@ function getApplicableFixes(
       continue;
     }
 
-    const scriptPath = path.resolve(issue.directory, target.script);
+    const scriptPath = path
+      .resolve(issue.directory, target.script)
+      .replace(/\.ts$/, ".js");
     const existing = fixesByScript.get(scriptPath);
 
     if (existing) {
@@ -482,14 +484,16 @@ async function applyFixes(issueId: string | undefined, options: ApplyOptions) {
       console.log(pc.dim(fix.scriptPath));
     }
 
-    const result = spawnSync(
-      process.execPath,
-      ["--experimental-strip-types", fix.scriptPath],
-      {
-        stdio: "pipe",
-        encoding: "utf8",
-      },
-    );
+    if (!existsSync(fix.scriptPath)) {
+      console.log(`${pc.red("✗")} Missing compiled script ${fix.scriptPath}`);
+      failures += 1;
+      continue;
+    }
+
+    const result = spawnSync(process.execPath, [fix.scriptPath], {
+      stdio: "pipe",
+      encoding: "utf8",
+    });
 
     if (result.stdout.trim()) {
       console.log(result.stdout.trim());
