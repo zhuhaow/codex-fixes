@@ -4,11 +4,11 @@ Use this skill when creating, reviewing, or running Codex Fixes issue manifests 
 
 ## Project Context
 
-Codex Fixes documents real Codex bugs and provides small local fix scripts for affected users. Fixes live in the registry package as one folder per issue:
+Codex Fixes documents real Codex bugs and provides small local fix scripts for affected users. Fixes live in the top-level registry data folder as one folder per issue:
 
 ```text
-packages/registry/issues/<issue-id>/
-  issue.yaml
+registry/issues/<issue-id>/
+  issue.json
   scripts/
     fix.ts
 ```
@@ -16,8 +16,7 @@ packages/registry/issues/<issue-id>/
 The registry schema is the source of truth. Before creating or changing any issue manifest, read:
 
 ```text
-packages/registry/schema/issue.schema.json
-packages/registry/src/index.ts
+registry/schema/issue.schema.json
 ```
 
 If the schema or existing type definitions do not answer a product or safety question, ask the project owner for clarification before inventing new fields or behavior.
@@ -26,10 +25,10 @@ If the schema or existing type definitions do not answer a product or safety que
 
 Create one issue folder for each distinct Codex problem. The folder name and `id` must use the schema's kebab-case identifier format.
 
-Each `issue.yaml` must:
+Each `issue.json` must:
 
-- Include a `yaml-language-server` schema comment that points to `../../schema/issue.schema.json`.
-- Follow `packages/registry/schema/issue.schema.json` exactly.
+- Include a `$schema` field that points to `../../schema/issue.schema.json`.
+- Follow `registry/schema/issue.schema.json` exactly.
 - Use only the established statuses: `active`, `fixed`, or `deprecated`.
 - Put GitHub issues or other reports in `sources.issues`.
 - Put links that justify or explain the fix in `sources.fixes`.
@@ -99,7 +98,7 @@ Do not run a script that may modify a user's real Codex data unless the user ask
 
 For manifest changes:
 
-- Validate YAML against `packages/registry/schema/issue.schema.json`.
+- Validate JSON against `registry/schema/issue.schema.json`.
 - Run formatting on the changed files.
 - Run the registry typecheck.
 

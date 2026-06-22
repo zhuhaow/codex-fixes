@@ -13,8 +13,5 @@
     "dev": "tsc -p tsconfig.json && node dist/index.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
-  "dependencies": {
-    "@codex-fixes/registry": "0.0.0"
   }
 }

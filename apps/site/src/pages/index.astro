@@ -1,77 +1,189 @@
 ---
+import { readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
-const articleDateFormatter = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-  timeZone: "UTC",
-});
+type IssueStatus = "active" | "fixed" | "deprecated";
+type IssueSeverity = "low" | "medium" | "high" | "critical";
+type Applies = "Yes" | "No" | "Unknown";
+type CodexSurface = "cli" | "desktop";
+type TargetId =
+  | "darwin-arm64"
+  | "darwin-x64"
+  | "linux-arm64"
+  | "linux-x64"
+  | "win32-arm64"
+  | "win32-x64";
+
+interface IssueTarget {
+  applies: Applies;
+  script?: string;
+}
+
+interface IssueManifest {
+  $schema?: string;
+  id: string;
+  title: string;
+  status: IssueStatus;
+  severity: IssueSeverity;
+  summary: string;
+  sources: {
+    issues: string[];
+    fixes: string[];
+  };
+  targets: Partial<
+    Record<CodexSurface, Partial<Record<TargetId, IssueTarget>>>
+  >;
+}
+
+const severityRank: Record<IssueSeverity, number> = {
+  critical: 0,
+  high: 1,
+  medium: 2,
+  low: 3,
+};
+
+const severityStyles: Record<IssueSeverity, string> = {
+  critical: "bg-rose-50 text-rose-700 ring-rose-200",
+  high: "bg-amber-50 text-amber-700 ring-amber-200",
+  medium: "bg-sky-50 text-sky-700 ring-sky-200",
+  low: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+};
+
+const surfaceLabels: Record<CodexSurface, string> = {
+  cli: "CLI",
+  desktop: "Desktop",
+};
+
+const targetLabels: Record<TargetId, string> = {
+  "darwin-arm64": "macOS Apple silicon",
+  "darwin-x64": "macOS Intel",
+  "linux-arm64": "Linux ARM64",
+  "linux-x64": "Linux x64",
+  "win32-arm64": "Windows ARM64",
+  "win32-x64": "Windows x64",
+};
 
 const links = [
-  { label: "Documentation", href: "#" },
   { label: "GitHub", href: "https://github.com/zhuhaow/codex-fixes" },
-  { label: "RSS", href: "/feed.xml" },
+  {
+    label: "Report bug",
+    href: "https://github.com/zhuhaow/codex-fixes/issues",
+  },
+  { label: "Install", href: "/install/" },
 ];
 
-const articles = [
-  {
-    id: "codex-fixes-message-suggestions",
-    date: "2023-04-06T00:00Z",
-    image: "/images/commit/commit-suggestions.png",
-    title: "codex-fixes message suggestions",
-    paragraphs: [
-      "In the latest release, I've added support for codex-fixes message and description suggestions via an integration with OpenAI. codex-fixes looks at all of your changes, and feeds that into the machine with a bit of prompt-tuning to get back a codex-fixes message that does a surprisingly good job at describing the intent of your changes.",
-      "It's also been a pretty helpful way to remind myself what the hell I was working on at the end of the day yesterday when I get back to my computer and realize I didn't codex-fixes any of my work.",
-    ],
-    improvements: [
-      "Added codex-fixes message and description suggestions powered by OpenAI",
-      "Fixed race condition that could sometimes leave you in a broken rebase state",
-      "Improved active project detection to try and ignore file changes triggered by the system instead of the user",
-      "Fixed bug that sometimes reported the wrong number of changed files",
-    ],
-  },
-  {
-    id: "project-configuration-files",
-    date: "2023-03-17T00:00Z",
-    image: "/images/commit/configuration-files.png",
-    title: "Project configuration files",
-    paragraphs: [
-      "I've added support for creating per-project `.codex-fixesrc` files that override your global settings for that particular project. Went with YAML for these because personally I'm sick of quoting keys in JSON all the time, or accidentally leaving in a trailing comma.",
-    ],
-    improvements: [
-      "Added per-project `.codex-fixesrc` configuration files",
-      "Improved performance when working with projects with large binary files",
-      "Fixed a bug that could cause codex-fixes to crash when auto-codex-fixesing after deleting a recently active branch",
-    ],
-  },
-  {
-    id: "dark-mode-support",
-    date: "2023-03-06T00:00Z",
-    image: "/images/commit/dark-mode.png",
-    title: "Dark mode support",
-    paragraphs: [
-      'I released this thing last week hoping a couple of people would say "awesome job" and make me feel good about what I\'d built but instead I just got a ton of people shaming me on X for being such a horrible person for only shipping a light UI.',
-    ],
-    improvements: [
-      "Added dark mode support",
-      "Improved input field responsiveness when writing a codex-fixes message in a project with a large number of changed files",
-      "Made keyboard shortcut for opening the codex-fixes window customizable",
-      "Deleted my X account",
-    ],
-  },
-  {
-    id: "codex-fixes-v010",
-    date: "2023-03-03T00:00Z",
-    image: "/images/commit/first-release.png",
-    title: "codex-fixes v0.1.0",
-    paragraphs: [
-      "codex-fixes is a command palette-style Git client you can pull up from anywhere with a keyboard shortcut that makes it really easy to codex-fixes your work. It uses the \"last modified\" timestamp of the files in all of your projects to automatically know which project you're in the middle of working on, so any time you pull up the UI it's already got the right project selected — you just have to type your codex-fixes message, hit Cmd + Enter and your changes are captured.",
-      "I'd be lying if I really thought this was that useful but I was looking for an excuse to learn macOS development and here we are. It's open source at least so maybe you can find something interesting in the code even if the app itself is a total waste of hard drive space.",
-    ],
-    improvements: [],
-  },
-];
+const issueStatuses = new Set<IssueStatus>(["active", "fixed", "deprecated"]);
+const issueSeverities = new Set<IssueSeverity>([
+  "low",
+  "medium",
+  "high",
+  "critical",
+]);
+
+function assertIssueManifest(issue: unknown): asserts issue is IssueManifest {
+  if (!issue || typeof issue !== "object") {
+    throw new Error("Issue manifest must be an object.");
+  }
+
+  const manifest = issue as Partial<IssueManifest>;
+
+  if (!manifest.id || typeof manifest.id !== "string") {
+    throw new Error("Issue manifest is missing id.");
+  }
+
+  if (!manifest.status || !issueStatuses.has(manifest.status)) {
+    throw new Error(`Issue ${manifest.id} has an invalid status.`);
+  }
+
+  if (!manifest.severity || !issueSeverities.has(manifest.severity)) {
+    throw new Error(`Issue ${manifest.id} has an invalid severity.`);
+  }
+
+  if (!manifest.sources || !manifest.targets) {
+    throw new Error(`Issue ${manifest.id} is missing sources or targets.`);
+  }
+}
+
+function readIssueManifest(filePath: string): IssueManifest {
+  const issue = JSON.parse(readFileSync(filePath, "utf8")) as unknown;
+  assertIssueManifest(issue);
+
+  return issue;
+}
+
+function loadIssues(): IssueManifest[] {
+  const issuesDirectory = path.resolve(process.cwd(), "../../registry/issues");
+
+  return readdirSync(issuesDirectory, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => path.join(issuesDirectory, entry.name, "issue.json"))
+    .map(readIssueManifest)
+    .sort((left, right) => left.id.localeCompare(right.id));
+}
+
+const issues = loadIssues();
+
+const activeIssues = issues
+  .filter((issue) => issue.status === "active")
+  .sort(
+    (left, right) =>
+      severityRank[left.severity] - severityRank[right.severity] ||
+      left.id.localeCompare(right.id),
+  );
+
+function titleCase(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function collectTargets(
+  issue: IssueManifest,
+  matches: (target: IssueTarget) => boolean,
+): string[] {
+  const labels: string[] = [];
+
+  for (const [surface, targetMap] of Object.entries(issue.targets) as Array<
+    [CodexSurface, Partial<Record<TargetId, IssueTarget>>]
+  >) {
+    for (const [targetId, target] of Object.entries(targetMap) as Array<
+      [TargetId, IssueTarget]
+    >) {
+      if (matches(target)) {
+        labels.push(`${surfaceLabels[surface]} · ${targetLabels[targetId]}`);
+      }
+    }
+  }
+
+  return labels;
+}
+
+function sourceLabel(url: string): string {
+  const issueMatch = /\/issues\/(?<issueNumber>\d+)/.exec(url);
+  const commentMatch = /#issuecomment-(?<commentId>\d+)/.exec(url);
+
+  if (issueMatch?.groups?.issueNumber && commentMatch?.groups?.commentId) {
+    return `#${issueMatch.groups.issueNumber} comment`;
+  }
+
+  if (issueMatch?.groups?.issueNumber) {
+    return `#${issueMatch.groups.issueNumber}`;
+  }
+
+  return new URL(url).hostname;
+}
+
+const activeFixes = activeIssues.map((issue) => ({
+  ...issue,
+  knownAffected: collectTargets(issue, (target) => target.applies === "Yes"),
+  fixAvailable: collectTargets(
+    issue,
+    (target) => target.applies === "Yes" && Boolean(target.script),
+  ),
+  needsVerification: collectTargets(
+    issue,
+    (target) => target.applies === "Unknown",
+  ),
+}));
 ---
 
 <BaseLayout
@@ -99,61 +211,37 @@ const articles = [
       <div
         class="relative mx-auto flex w-full max-w-lg flex-col py-20 sm:py-32 lg:w-96 lg:py-0"
       >
-        <div>
-          <a
-            href="/"
-            aria-label="codex-fixes home"
-            class="inline-flex items-center"
+        <a href="/" aria-label="codex-fixes home" class="inline-flex">
+          <span class="text-2xl font-bold tracking-tight text-white"
+            >codex-fixes</span
           >
-            <span class="text-2xl font-bold tracking-tight text-white"
-              >codex-fixes</span
-            >
-          </a>
-        </div>
+        </a>
 
-        <h1 class="mt-14 text-4xl/tight font-light text-white">
-          Open-source Git client <span class="text-sky-300"
-            >for macOS minimalists</span
-          >
-        </h1>
-        <p class="mt-4 text-sm/6 text-gray-300">
-          codex-fixes is a lightweight Git client you can open from anywhere any
-          time you're ready to codex-fixes your work with a single keyboard
-          shortcut. It's fast, beautiful, and completely unnecessary.
+        <p
+          class="mt-14 w-fit rounded-full bg-white/8 px-3 py-1 text-xs/5 font-medium text-sky-200 ring-1 ring-white/10"
+        >
+          {activeFixes.length} active fix{activeFixes.length === 1 ? "" : "es"} tracked
         </p>
 
-        <form class="relative isolate mt-8 flex items-center pr-1">
-          <label for="email-address" class="sr-only">Email address</label>
-          <input
-            required
-            type="email"
-            autocomplete="email"
-            name="email"
-            id="email-address"
-            placeholder="Email address"
-            class="peer w-0 flex-auto bg-transparent px-4 py-2.5 text-base text-white placeholder:text-gray-500 focus:outline-none sm:text-[0.8125rem]/6"
-          />
-          <button
-            type="submit"
-            class="group relative isolate flex-none rounded-md py-1.5 pr-[calc(9/16*1rem)] pl-2.5 text-[0.8125rem]/6 font-semibold text-white"
-          >
-            <span
-              class="absolute inset-0 rounded-md bg-linear-to-b from-white/80 to-white opacity-10 transition-opacity group-hover:opacity-15"
-            ></span>
-            <span
-              class="absolute inset-0 rounded-md opacity-7 shadow-[inset_0_1px_1px_white] transition-opacity group-hover:opacity-10"
-            ></span>
-            Get updates <span aria-hidden="true">→</span>
-          </button>
-          <div
-            class="absolute inset-0 -z-10 rounded-lg transition peer-focus:ring-4 peer-focus:ring-sky-300/15"
-          >
-          </div>
-          <div
-            class="absolute inset-0 -z-10 rounded-lg bg-white/[0.025] ring-1 ring-white/15 transition peer-focus:ring-sky-300"
-          >
-          </div>
-        </form>
+        <h1 class="mt-5 text-4xl/tight font-light text-white">
+          Community fixes for <span class="text-sky-300">real Codex bugs</span>
+        </h1>
+        <p class="mt-4 text-sm/6 text-gray-300">
+          Codex Fixes tracks current, user-impacting Codex issues and keeps the
+          workarounds in one open registry so people do not have to dig through
+          long GitHub threads just to protect their machine.
+        </p>
+
+        <div class="mt-8 grid gap-3 text-sm/6 text-gray-300">
+          <p class="rounded-lg bg-white/[0.035] p-4 ring-1 ring-white/10">
+            Fixes are small TypeScript scripts, designed to be idempotent,
+            dependency-free, and easy to audit before running.
+          </p>
+          <p class="rounded-lg bg-white/[0.035] p-4 ring-1 ring-white/10">
+            Each entry links back to public reports and the source of the
+            workaround, so contributors can verify what changed.
+          </p>
+        </div>
 
         <div
           class="mt-8 flex flex-wrap justify-center gap-x-1 gap-y-3 sm:gap-x-2 lg:justify-start"
@@ -170,109 +258,123 @@ const articles = [
             ))
           }
         </div>
-
-        <p
-          class="hidden items-baseline gap-x-2 pt-20 text-[0.8125rem]/6 text-gray-500 lg:flex"
-        >
-          Brought to you by <a href="#" class="font-medium text-white"
-            >Joe Davola</a
-          >
-        </p>
       </div>
     </aside>
 
-    <div class="relative lg:ml-[50%]">
-      <div class="space-y-20 py-20 sm:space-y-32 sm:py-32">
-        {
-          articles.map((article) => (
-            <article id={article.id} class="scroll-mt-16">
-              <header class="relative mb-10 xl:mb-0">
-                <div class="pointer-events-none absolute top-0 left-[max(-0.5rem,calc(50%-18.625rem))] z-10 flex h-4 items-center justify-end gap-x-2 lg:right-full lg:left-auto lg:mr-8 lg:min-w-48 xl:h-8">
-                  <a
-                    href={`#${article.id}`}
-                    class="pointer-events-auto hidden xl:block"
+    <section class="relative bg-white lg:ml-[50%]">
+      <div class="mx-auto max-w-3xl px-6 py-16 sm:py-24 lg:px-10 xl:px-14">
+        <div class="pb-8">
+          <p
+            class="text-xs/5 font-semibold tracking-[0.16em] text-sky-600 uppercase"
+          >
+            Active registry
+          </p>
+          <h2
+            class="mt-3 text-3xl/9 font-semibold tracking-tight text-gray-950"
+          >
+            Current bugs and fixes
+          </h2>
+          <p class="mt-4 max-w-2xl text-sm/6 text-gray-600">
+            Sorted by severity first, then issue id. Platform coverage is
+            intentionally explicit so uncertain targets stay visible.
+          </p>
+        </div>
+
+        <div class="mt-2">
+          {
+            activeFixes.map((issue) => (
+              <article id={issue.id} class="border-t border-gray-950/10 py-8">
+                <div class="flex flex-wrap items-center gap-3">
+                  <span class="rounded-md bg-gray-100 px-2 py-1 font-mono text-xs text-gray-600">
+                    {issue.id}
+                  </span>
+                  <span
+                    class={`rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${severityStyles[issue.severity]}`}
                   >
-                    <time
-                      datetime={new Date(article.date).toISOString()}
-                      class="text-[0.6875rem]/4 font-medium text-gray-400"
-                    >
-                      {articleDateFormatter.format(new Date(article.date))}
-                    </time>
-                  </a>
-                  <div class="h-px w-3.5 bg-gray-300" />
+                    {titleCase(issue.severity)}
+                  </span>
                 </div>
-                <div class="mx-auto max-w-7xl px-6 lg:flex lg:px-8">
-                  <div class="lg:flex lg:w-full lg:justify-end">
-                    <div class="mx-auto max-w-lg lg:mx-0 lg:w-0 lg:max-w-xl lg:flex-auto">
-                      <a href={`#${article.id}`} class="inline-flex xl:hidden">
-                        <time
-                          datetime={new Date(article.date).toISOString()}
-                          class="text-[0.6875rem]/4 font-medium text-gray-500"
-                        >
-                          {articleDateFormatter.format(new Date(article.date))}
-                        </time>
+
+                <h3 class="mt-4 text-xl/7 font-semibold tracking-tight text-gray-950">
+                  <a href={`#${issue.id}`}>{issue.title}</a>
+                </h3>
+                <p class="mt-3 text-sm/6 text-gray-600">{issue.summary}</p>
+
+                <div class="mt-6 grid gap-4">
+                  <div>
+                    <h4 class="text-xs/5 font-semibold text-gray-950">
+                      Known affected
+                    </h4>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                      {issue.knownAffected.length > 0 ? (
+                        issue.knownAffected.map((label) => (
+                          <span class="rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700 ring-1 ring-rose-100">
+                            {label}
+                          </span>
+                        ))
+                      ) : (
+                        <span class="text-sm/6 text-gray-500">
+                          Still being confirmed.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 class="text-xs/5 font-semibold text-gray-950">
+                      Fix available for
+                    </h4>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                      {issue.fixAvailable.map((label) => (
+                        <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-100">
+                          {label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {issue.needsVerification.length > 0 && (
+                    <div>
+                      <h4 class="text-xs/5 font-semibold text-gray-950">
+                        Needs verification
+                      </h4>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        {issue.needsVerification.map((label) => (
+                          <span class="rounded-full bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div class="mt-6">
+                  <h4 class="text-xs/5 font-semibold text-gray-950">Sources</h4>
+                  <div class="mt-2 flex flex-wrap gap-2">
+                    {issue.sources.issues.map((source) => (
+                      <a
+                        href={source}
+                        class="rounded-md bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-700 ring-1 ring-gray-200 transition hover:bg-sky-50 hover:text-sky-700 hover:ring-sky-200"
+                      >
+                        Issue {sourceLabel(source)}
                       </a>
-                    </div>
-                  </div>
-                </div>
-              </header>
-
-              <div class="mx-auto max-w-7xl px-6 lg:flex lg:px-8">
-                <div class="lg:flex lg:w-full lg:justify-end">
-                  <div class="mx-auto max-w-lg text-sm/6 text-gray-600 lg:mx-0 lg:w-0 lg:max-w-xl lg:flex-auto">
-                    <div class="relative overflow-hidden rounded-xl bg-gray-50">
-                      <img
-                        src={article.image}
-                        alt=""
-                        class="w-full"
-                        loading="lazy"
-                      />
-                      <div class="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-gray-900/10 ring-inset" />
-                    </div>
-
-                    <h2 class="mt-8 text-xl/8 font-semibold text-gray-900">
-                      <a href={`#${article.id}`}>{article.title}</a>
-                    </h2>
-
-                    {article.paragraphs.map((paragraph) => (
-                      <p class="mt-6">{paragraph}</p>
                     ))}
-
-                    {article.improvements.length > 0 && (
-                      <>
-                        <h3 class="mt-8 flex items-center gap-3 text-base/6 font-semibold text-gray-900">
-                          <svg
-                            viewBox="0 0 16 16"
-                            aria-hidden="true"
-                            class="size-4"
-                          >
-                            <path
-                              fill="#38BDF8"
-                              d="M5.338 9.805c.11.418.439.747.857.857C7.282 10.948 8 11.44 8 12s-.718 1.052-1.805 1.338c-.418.11-.747.439-.857.857C5.052 15.281 4.56 16 4 16s-1.052-.718-1.338-1.805a1.205 1.205 0 0 0-.856-.857C.718 13.052 0 12.56 0 12s.718-1.052 1.806-1.338c.417-.11.746-.439.856-.857C2.948 8.718 3.441 8 4 8c.56 0 1.052.718 1.338 1.805Z"
-                            />
-                            <path
-                              fill="#7DD3FC"
-                              d="M12.717 2.432c.1.42.43.75.85.852C15.026 3.633 16 4.27 16 5s-.975 1.367-2.432 1.716c-.42.101-.75.432-.851.852C12.367 9.025 11.729 10 11 10c-.729 0-1.367-.975-1.716-2.432-.101-.42-.431-.75-.851-.852C6.975 6.367 6 5.73 6 5c0-.73.975-1.367 2.433-1.717.42-.1.75-.43.85-.85C9.634.974 10.272 0 11 0c.73 0 1.367.975 1.717 2.432Z"
-                            />
-                          </svg>
-                          Improvements
-                        </h3>
-                        <ul class="mt-6 list-disc space-y-2 pl-5">
-                          {article.improvements.map((improvement) => (
-                            <li class="pl-2 marker:text-gray-400">
-                              {improvement}
-                            </li>
-                          ))}
-                        </ul>
-                      </>
-                    )}
+                    {issue.sources.fixes.map((source) => (
+                      <a
+                        href={source}
+                        class="rounded-md bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-200 transition hover:bg-sky-100"
+                      >
+                        Fix source {sourceLabel(source)}
+                      </a>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </article>
-          ))
-        }
+              </article>
+            ))
+          }
+        </div>
       </div>
-    </div>
+    </section>
   </div>
 </BaseLayout>

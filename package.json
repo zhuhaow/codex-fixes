@@ -19,7 +19,7 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "lint": "npm run lint --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "tsc -p registry/tsconfig.json --noEmit && npm run typecheck --workspaces --if-present",
     "cli": "npm run dev -w @codex-fixes/cli --"
   },
   "devDependencies": {
