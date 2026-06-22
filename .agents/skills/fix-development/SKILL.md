@@ -50,12 +50,26 @@ Required constraints:
 - Do not require shell-specific dependencies when Node APIs can do the work.
 - Keep platform-specific behavior explicit and easy to inspect.
 - Prefer small functions with clear names over clever abstractions.
+- Keep the script as simple and straightforward as the fix allows.
 
 Fix scripts must be idempotent. Running the same script repeatedly at any time should either apply the same harmless final state or report that no work is needed.
 
 Fix scripts must be harmless. A fix should not corrupt user data, delete unrelated files, disable broad system functionality, or make Codex harder to reinstall or update.
 
 Any persistent change must be easy to reverse by reinstalling or updating Codex. If that is not true, do not implement the fix without explicit approval from the project owner.
+
+## Readability and Logging
+
+Fix scripts should be very easy to read and audit. Use clear, direct control flow and avoid clever abstractions.
+
+Each script should have extensive, useful runtime logging:
+
+- Say what fix is being applied.
+- Print the relevant local path or target being checked.
+- Report each meaningful decision, such as "nothing to fix", "database not found", or "trigger already installed".
+- Summarize the final result.
+
+Use short code comments when they explain safety reasoning, a non-obvious platform difference, or the upstream workaround being implemented. Do not add comments that merely repeat the code.
 
 ## Safety Pattern
 
@@ -69,7 +83,7 @@ When a fix touches local files:
 
 When a fix touches running Codex state:
 
-- Prefer refusing while Codex is running unless there is a clear safe reason not to.
+- Check for running Codex processes only when that specific fix requires it.
 - Provide an explicit override flag only when the risk is small and described in code or output.
 - Avoid background processes, daemons, timers, and long-running watchers.
 
