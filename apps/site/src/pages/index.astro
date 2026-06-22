@@ -65,7 +65,8 @@ const targetLabels: Record<TargetId, string> = {
 };
 
 const sourceUrl = "https://github.com/zhuhaow/codex-fixes";
-const contributeUrl = "https://github.com/zhuhaow/codex-fixes/issues/new/choose";
+const contributeUrl =
+  "https://github.com/zhuhaow/codex-fixes/issues/new/choose";
 
 const issueStatuses = new Set<IssueStatus>(["active", "fixed", "deprecated"]);
 const issueSeverities = new Set<IssueSeverity>([
@@ -247,7 +248,9 @@ const activeFixes = activeIssues.map((issue) => ({
         >
           <div class="rounded-lg bg-gray-950/95 p-4 ring-1 ring-white/10">
             <div class="flex items-center justify-between gap-4">
-              <p class="text-xs/5 font-semibold tracking-[0.16em] text-sky-200 uppercase">
+              <p
+                class="text-xs/5 font-semibold tracking-[0.16em] text-sky-200 uppercase"
+              >
                 Run the fixes
               </p>
             </div>

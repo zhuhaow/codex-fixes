@@ -1,6 +1,5 @@
 ## What changed
 
-
 ## Type of change
 
 - [ ] Registry entry
@@ -12,7 +11,6 @@
 ## Sources
 
 Link related issues, public reports, or fix sources.
-
 
 ## Checklist
 
