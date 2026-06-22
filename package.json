@@ -1,5 +1,5 @@
 {
-  "name": "codex-fixes",
+  "name": "codex-fixes-monorepo",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -20,7 +20,7 @@
     "format:check": "prettier . --check",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "tsc -p registry/tsconfig.json --noEmit && npm run typecheck --workspaces --if-present",
-    "cli": "npm run dev -w @codex-fixes/cli --"
+    "cli": "npm run dev -w codex-fixes --"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

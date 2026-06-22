@@ -1,7 +1,7 @@
 {
-  "name": "@codex-fixes/cli",
-  "version": "0.0.0",
-  "private": true,
+  "name": "codex-fixes",
+  "version": "0.1.0",
+  "private": false,
   "type": "module",
   "bin": {
     "codex-fixes": "./dist/index.js"
@@ -9,9 +9,19 @@
   "exports": {
     ".": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "package.json"
+  ],
   "scripts": {
     "dev": "tsc -p tsconfig.json && node dist/index.js",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && node scripts/copy-registry.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.6.0",
+    "commander": "^11.1.0",
+    "picocolors": "^1.1.1",
+    "zod": "^3.25.76"
   }
 }
